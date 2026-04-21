@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Rutina</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0e0e0e;
+    --card: #1a1a1a;
+    --card2: #222;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #888;
+    --border: #2e2e2e;
+    --green: #4ade80;
+    --orange: #fb923c;
+    --red: #f87171;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 20px;
+  }
+
+  /* PRs */
+  .prs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .pr-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .pr-card .val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .pr-card .lbl {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* Ciclo tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Session cards */
+  .session { display: none; }
+  .session.active { display: block; }
+
+  .session-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .session-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .s1 .session-icon { background: #2a1f0a; }
+  .s2 .session-icon { background: #0a1a2a; }
+  .s3 .session-icon { background: #0a2a14; }
+  .s4 .session-icon { background: #1a0a2a; }
+  .s5 .session-icon { background: #2a0a0a; }
+
+  .session-title h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+  .session-title p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 16px 0 8px;
+  }
+
+  /* Exercise rows */
+  .ex-row {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-left: 3px solid transparent;
+  }
+  .ex-row.star { border-left-color: var(--accent); }
+  .ex-row.warn { border-left-color: var(--orange); }
+  .ex-row.superset { border-left-color: #7c5cbf; }
+
+  .ex-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .ex-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--card2);
+    color: var(--text);
+  }
+  .badge.accent { background: #1e2a00; color: var(--accent); }
+  .badge.load { background: #1a1500; color: #fde68a; }
+  .badge.rest { background: #0f1a1a; color: #67e8f9; }
+  .badge.warn { background: #1f1000; color: var(--orange); }
+
+  /* Progresión table */
+  .prog-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6px;
+  }
+  .prog-table th {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .prog-table td {
+    padding: 8px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .prog-table tr:last-child td { border-bottom: none; }
+  .prog-table tr.deload td { color: var(--muted); }
+  .prog-table tr.peak td { color: var(--accent); font-weight: 600; }
+  .week-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    background: var(--muted);
+    vertical-align: middle;
+  }
+  .week-dot.w1 { background: #4ade80; }
+  .week-dot.w2 { background: #facc15; }
+  .week-dot.w3 { background: #fb923c; }
+  .week-dot.w4 { background: var(--accent); }
+  .week-dot.w5 { background: var(--muted); }
+
+  /* Note box */
+  .note {
+    background: #1a1a00;
+    border: 1px solid #2e2e00;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #d4d48a;
+    margin: 10px 0;
+    line-height: 1.5;
+  }
+  .note.red {
+    background: #1a0a0a;
+    border-color: #2e1010;
+    color: #f87171;
+  }
+
+  /* Carga resumen */
+  .carga-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .carga-card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid var(--border);
+  }
+  .carga-card .ex { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .carga-weeks { display: flex; gap: 4px; flex-direction: column; }
+  .carga-row { display: flex; justify-content: space-between; font-size: 12px; }
+  .carga-row .w { color: var(--muted); }
+  .carga-row .kg { font-weight: 600; }
+  .carga-row.peak .kg { color: var(--accent); }
+  .carga-row.deload .kg { color: var(--muted); }
+
+  /* Reglas */
+  .rules {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  .rule-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .rule-item:last-child { margin-bottom: 0; }
+  .rule-dot { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px;
+    background: rgba(14,14,14,0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 12px;
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .nav-btn.active .nav-icon { color: var(--accent); }
+  .nav-btn .nav-icon { font-size: 1.2rem; color: var(--muted); transition: color 0.2s; }
+  .nav-btn .nav-lbl { font-size: 9px; color: var(--muted); letter-spacing: 0.5px; }
+  .nav-btn.active .nav-lbl { color: var(--accent); }
+
+  .page { display: none; }
+  .page.active { display: block; padding-bottom: 80px; }
+</style>
+</head>
+<body>
+
+<!-- PAGE: RUTINA -->
+<div class="page active" id="page-rutina">
+
+  <h1>MI RUTINA</h1>
+  <p class="subtitle">Calistenia + Gym · Avanzado · Ciclo 4+1</p>
+
+  <div class="prs">
+    <div class="pr-card">
+      <div class="val">+65kg</div>
+      <div class="lbl">Fondos</div>
+    </div>
+    <div class="pr-card">
+      <div class="val">+50kg</div>
+      <div class="lbl">Dominadas</div>
+    </div>
+    <div class="pr-card">
+      <div class="val">+10kg</div>
+      <div class="lbl">Muscle Up</div>
+    </div>
+  </div>
+
+  <!-- Session Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="showSession(1, this)">💥 Push</div>
+    <div class="tab" onclick="showSession(2, this)">🔙 Pull</div>
+    <div class="tab" onclick="showSession(3, this)">🦵 Legs</div>
+    <div class="tab" onclick="showSession(4, this)">🤸 Anillas</div>
+    <div class="tab" onclick="showSession(5, this)">🔥 Core</div>
+  </div>
+
+  <!-- SESSION 1: PUSH -->
+  <div class="session s1 active" id="s1">
+    <div class="session-header">
+      <div class="session-icon">💥</div>
+      <div class="session-title">
+        <h2>SESIÓN 1 — PUSH</h2>
+        <p>Pecho · Hombros · Tríceps</p>
+      </div>
+    </div>
+
+    <div class="section-label">⭐ Ejercicio estrella — Fondos Lastrados</div>
+    <div style="background:var(--card);border-radius:10px;overflow:hidden;margin-bottom:6px;">
+      <table class="prog-table">
+        <tr><th>Semana</th><th>Lastre</th><th>Series×Reps</th><th>Desc.</th></tr>
+        <tr><td><span class="week-dot w1"></span>S1</td><td>+45 kg</td><td>5×6</td><td>3 min</td></tr>
+        <tr><td><span class="week-dot w2"></span>S2</td><td>+52 kg</td><td>5×5</td><td>3 min</td></tr>
+        <tr><td><span class="week-dot w3"></span>S3</td><td>+58 kg</td><td>4×4-5</td><td>3.5 min</td></tr>
+        <tr class="peak"><td><span class="week-dot w4"></span>S4</td><td>+65 kg</td><td>4×3-4</td><td>4 min</td></tr>
+        <tr class="deload"><td><span class="week-dot w5"></span>S5 ↓</td><td>+30 kg</td><td>3×8</td><td>2 min</td></tr>
+      </table>
+    </div>
+
+    <div class="section-label">Accesorios</div>
+    <div class="ex-row">
+      <div class="ex-name">Press inclinado con barra</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×8-10</span>
+        <span class="badge load">~70-80 kg</span>
+        <span class="badge rest">90 seg</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Press militar mancuernas</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×10-12</span>
+        <span class="badge load">~22-26 kg c/u</span>
+        <span class="badge rest">75 seg</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Aperturas polea alta (crossover)</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×12-15</span>
+        <span class="badge load">~15-20 kg</span>
+        <span class="badge rest">45 seg</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Elevaciones laterales mancuernas</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×15</span>
+        <span class="badge load">~12-14 kg c/u</span>
+        <span class="badge rest">45 seg</span>
+      </div>
+    </div>
+    <div class="ex-row superset">
+      <div class="ex-name">Extensión tríceps polea (cuerda) <span style="color:#7c5cbf;font-size:10px;">SUPERSET ↓</span></div>
+      <div class="ex-meta">
+        <span class="badge accent">3×15</span>
+        <span class="badge load">~35-40 kg</span>
+      </div>
+    </div>
+    <div class="ex-row superset">
+      <div class="ex-name">Flexiones diamante <span style="color:#7c5cbf;font-size:10px;">SUPERSET ↑</span></div>
+      <div class="ex-meta">
+        <span class="badge accent">3×Max</span>
+        <span class="badge rest">45 seg</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 2: PULL -->
+  <div class="session s2" id="s2">
+    <div class="session-header">
+      <div class="session-icon">🔙</div>
+      <div class="session-title">
+        <h2>SESIÓN 2 — PULL</h2>
+        <p>Espalda · Bíceps · Manguito</p>
+      </div>
+    </div>
+
+    <div class="section-label">⭐ Muscle Up Lastrado</div>
+    <div style="background:var(--card);border-radius:10px;overflow:hidden;margin-bottom:10px;">
+      <table class="prog-table">
+        <tr><th>Semana</th><th>Lastre</th><th>Series×Reps</th><th>Desc.</th></tr>
+        <tr><td><span class="week-dot w1"></span>S1</td><td>+7 kg</td><td>5×4</td><td>3 min</td></tr>
+        <tr><td><span class="week-dot w2"></span>S2</td><td>+8 kg</td><td>5×3-4</td><td>3 min</td></tr>
+        <tr><td><span class="week-dot w3"></span>S3</td><td>+9 kg</td><td>4×3</td><td>3.5 min</td></tr>
+        <tr class="peak"><td><span class="week-dot w4"></span>S4</td><td>+10 kg</td><td>4×2-3</td><td>4 min</td></tr>
+        <tr class="deload"><td><span class="week-dot w5"></span>S5 ↓</td><td>PC</td><td>3×6-8</td><td>2 min</td></tr>
+      </table>
+    </div>
+
+    <div class="section-label">⭐ Dominadas Lastradas</div>
+    <div style="background:var(--card);border-radius:10px;overflow:hidden;margin-bottom:10px;">
+      <table class="prog-table">
+        <tr><th>Semana</th><th>Lastre</th><th>Series×Reps</th><th>Desc.</th></tr>
+        <tr><td><span class="week-dot w1"></span>S1</td><td>+35 kg</td><td>5×5</td><td>3 min</td></tr>
+        <tr><td><span class="week-dot w2"></span>S2</td><td>+42 kg</td><td>5×4-5</td><td>3 min</td></tr>
+        <tr><td><span class="week-dot w3"></span>S3</td><td>+47 kg</td><td>4×4</td><td>3.5 min</td></tr>
+        <tr class="peak"><td><span class="week-dot w4"></span>S4</td><td>+50 kg</td><td>4×3-4</td><td>4 min</td></tr>
+        <tr class="deload"><td><span class="week-dot w5"></span>S5 ↓</td><td>+20 kg</td><td>3×8</td><td>2 min</td></tr>
+      </table>
+    </div>
+
+    <div class="section-label">Accesorios</div>
+    <div class="ex-row">
+      <div class="ex-name">Remo con barra Pendlay</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×8-10</span>
+        <span class="badge load">~80-90 kg</span>
+        <span class="badge rest">90 seg</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Jalón al pecho agarre neutro</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×12</span>
+        <span class="badge load">~80-90 kg</span>
+        <span class="badge rest">60 seg</span>
+      </div>
+    </div>
+    <div class="ex-row warn">
+      <div class="ex-name">Face pulls con cuerda <span style="color:var(--orange);font-size:10px;">OPCIONAL</span></div>
+      <div class="ex-meta">
+        <span class="badge accent">3×15</span>
+        <span class="badge load">~20-25 kg</span>
+        <span class="badge warn">Salud manguito</span>
+      </div>
+    </div>
+    <div class="ex-row superset">
+      <div class="ex-name">Curl bíceps barra Z <span style="color:#7c5cbf;font-size:10px;">SUPERSET ↓</span></div>
+      <div class="ex-meta">
+        <span class="badge accent">3×10-12</span>
+        <span class="badge load">~40-45 kg</span>
+      </div>
+    </div>
+    <div class="ex-row superset">
+      <div class="ex-name">Curl martillo mancuernas <span style="color:#7c5cbf;font-size:10px;">SUPERSET ↑</span></div>
+      <div class="ex-meta">
+        <span class="badge accent">3×12</span>
+        <span class="badge load">~18-20 kg c/u</span>
+        <span class="badge rest">45 seg</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 3: LEGS -->
+  <div class="session s3" id="s3">
+    <div class="session-header">
+      <div class="session-icon">🦵</div>
+      <div class="session-title">
+        <h2>SESIÓN 3 — LEGS</h2>
+        <p>Glúteos · Isquios · Cuádriceps</p>
+      </div>
+    </div>
+
+    <div class="note red">⚠️ Condromalacia rotuliana — escuchá tu rodilla cada sesión. Sin sentadilla completa. Extensión de cuádriceps en rango parcial (0°–60°).</div>
+
+    <div class="section-label">⭐ Progresión Hip Thrust & RDL</div>
+    <div style="background:var(--card);border-radius:10px;overflow:hidden;margin-bottom:10px;">
+      <table class="prog-table">
+        <tr><th></th><th>Hip Thrust</th><th>RDL</th></tr>
+        <tr><td><span class="week-dot w1"></span>S1</td><td>110 kg</td><td>90 kg</td></tr>
+        <tr><td><span class="week-dot w2"></span>S2</td><td>120 kg</td><td>100 kg</td></tr>
+        <tr><td><span class="week-dot w3"></span>S3</td><td>130 kg</td><td>105 kg</td></tr>
+        <tr class="peak"><td><span class="week-dot w4"></span>S4</td><td>140 kg</td><td>110 kg</td></tr>
+        <tr class="deload"><td><span class="week-dot w5"></span>S5 ↓</td><td>90 kg</td><td>75 kg</td></tr>
+      </table>
+    </div>
+
+    <div class="section-label">Ejercicios</div>
+    <div class="ex-row star">
+      <div class="ex-name">Hip Thrust con barra ✅</div>
+      <div class="ex-meta">
+        <span class="badge accent">5×10-12</span>
+        <span class="badge rest">90 seg</span>
+      </div>
+    </div>
+    <div class="ex-row star">
+      <div class="ex-name">Peso muerto rumano (RDL) ✅</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×10-12</span>
+        <span class="badge rest">90 seg</span>
+      </div>
+    </div>
+    <div class="ex-row warn">
+      <div class="ex-name">Sentadilla búlgara mancuernas ⚠️</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×8 c/lado</span>
+        <span class="badge load">~24-28 kg c/u</span>
+        <span class="badge warn">Solo sin dolor</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Curl femoral tumbado ✅</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×12-15</span>
+        <span class="badge load">~50-60 kg</span>
+        <span class="badge rest">60 seg</span>
+      </div>
+    </div>
+    <div class="ex-row warn">
+      <div class="ex-name">Extensión cuádriceps ⚠️</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×15</span>
+        <span class="badge load">~40-50 kg</span>
+        <span class="badge warn">Rango 0°–60°</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Elevación de talones ✅</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×20</span>
+        <span class="badge load">~60-70 kg</span>
+        <span class="badge rest">30 seg</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Abductor en máquina ✅</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×20</span>
+        <span class="badge load">~50-60 kg</span>
+        <span class="badge rest">45 seg</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 4: UPPER CAL + ANILLAS -->
+  <div class="session s4" id="s4">
+    <div class="session-header">
+      <div class="session-icon">🤸</div>
+      <div class="session-title">
+        <h2>SESIÓN 4 — ANILLAS</h2>
+        <p>Volumen técnico · Sin lastre</p>
+      </div>
+    </div>
+
+    <div class="note">💡 Día de volumen acumulativo. Los lastres descansan. Foco en técnica, tiempo bajo tensión y control en anillas.</div>
+
+    <div class="section-label">Anillas — Orden prioritario</div>
+    <div class="ex-row star">
+      <div class="ex-name">Muscle Up en anillas</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×5-6</span>
+        <span class="badge rest">90 seg</span>
+        <span class="badge load">Transición limpia</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Remo en anillas (supino)</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×12-15</span>
+        <span class="badge rest">60 seg</span>
+        <span class="badge load">Pausa arriba</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Fondos en anillas</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×10-12</span>
+        <span class="badge rest">75 seg</span>
+        <span class="badge load">Anillas hacia afuera</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Flexiones arqueras</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×8 c/lado</span>
+        <span class="badge rest">75 seg</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Push-ups en anillas</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×12</span>
+        <span class="badge rest">60 seg</span>
+        <span class="badge load">Max estabilización</span>
+      </div>
+    </div>
+
+    <div class="section-label">Barra + Gym</div>
+    <div class="ex-row">
+      <div class="ex-name">Dominadas agarre neutro</div>
+      <div class="ex-meta">
+        <span class="badge accent">4×10-12</span>
+        <span class="badge rest">75 seg</span>
+        <span class="badge load">Peso corporal</span>
+      </div>
+    </div>
+    <div class="ex-row superset">
+      <div class="ex-name">Press inclinado mancuernas <span style="color:#7c5cbf;font-size:10px;">SUPERSET ↓</span></div>
+      <div class="ex-meta">
+        <span class="badge accent">3×12</span>
+        <span class="badge load">~28-32 kg c/u</span>
+      </div>
+    </div>
+    <div class="ex-row superset">
+      <div class="ex-name">Aperturas mancuernas planas <span style="color:#7c5cbf;font-size:10px;">SUPERSET ↑</span></div>
+      <div class="ex-meta">
+        <span class="badge accent">3×15</span>
+        <span class="badge load">~16-18 kg c/u</span>
+        <span class="badge rest">45 seg</span>
+      </div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Jalón polea agarre cerrado</div>
+      <div class="ex-meta">
+        <span class="badge accent">3×12-15</span>
+        <span class="badge load">~70-80 kg</span>
+        <span class="badge rest">60 seg</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION 5: CORE -->
+  <div class="session s5" id="s5">
+    <div class="session-header">
+      <div class="session-icon">🔥</div>
+      <div class="session-title">
+        <h2>SESIÓN 5 — CORE</h2>
+        <p>Cardio · Core Calistenia</p>
+      </div>
+    </div>
+
+    <div class="section-label">Cardio (25 min)</div>
+    <div class="ex-row star">
+      <div class="ex-name">Remo ergómetro — Opción A ✅</div>
+      <div class="ex-meta">
+        <span class="badge load">45 seg al 85-90% / 45 seg suave</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;">~12-13 intervalos · preferida · rodilla sin compresión</div>
+    </div>
+    <div class="ex-row warn">
+      <div class="ex-name">Cinta inclinada — Opción B ⚠️</div>
+      <div class="ex-meta">
+        <span class="badge warn">Si hay molestia en rodilla</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;">8-12% inclinación · 5-6 km/h · 25 min continuos</div>
+    </div>
+
+    <div class="section-label">Bloque 1 — Fuerza abdominal</div>
+    <div class="ex-row">
+      <div class="ex-name">Dragon flag</div>
+      <div class="ex-meta"><span class="badge accent">4×6-8</span><span class="badge rest">90 seg</span></div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Ab wheel rollout (full)</div>
+      <div class="ex-meta"><span class="badge accent">4×10-12</span><span class="badge rest">75 seg</span></div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">L-sit en paralelas</div>
+      <div class="ex-meta"><span class="badge accent">3×15-20 seg</span><span class="badge rest">60 seg</span></div>
+    </div>
+
+    <div class="section-label">Bloque 2 — Core colgado</div>
+    <div class="ex-row">
+      <div class="ex-name">Toes to bar (piernas rectas)</div>
+      <div class="ex-meta"><span class="badge accent">4×10-12</span><span class="badge rest">60 seg</span></div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Windshield wipers colgado</div>
+      <div class="ex-meta"><span class="badge accent">3×8 c/lado</span><span class="badge rest">75 seg</span></div>
+    </div>
+    <div class="ex-row star">
+      <div class="ex-name">Front lever hold</div>
+      <div class="ex-meta"><span class="badge accent">3×8-12 seg</span><span class="badge rest">90 seg</span><span class="badge load">Progresión tuck → full</span></div>
+    </div>
+
+    <div class="section-label">Bloque 3 — Estabilidad</div>
+    <div class="ex-row">
+      <div class="ex-name">Hollow body hold</div>
+      <div class="ex-meta"><span class="badge accent">3×30-45 seg</span><span class="badge rest">45 seg</span></div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Plancha con toque de hombro</div>
+      <div class="ex-meta"><span class="badge accent">3×12 c/lado</span><span class="badge rest">45 seg</span></div>
+    </div>
+    <div class="ex-row">
+      <div class="ex-name">Pallof press en polea</div>
+      <div class="ex-meta"><span class="badge accent">3×12 c/lado</span><span class="badge rest">45 seg</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE: CARGAS -->
+<div class="page" id="page-cargas">
+  <h1>CARGAS</h1>
+  <p class="subtitle">Progresión ciclo 4+1 semanas</p>
+
+  <div class="carga-grid">
+    <div class="carga-card">
+      <div class="ex">Fondos lastrados</div>
+      <div class="carga-weeks">
+        <div class="carga-row"><span class="w">S1 70%</span><span class="kg">+45 kg</span></div>
+        <div class="carga-row"><span class="w">S2 80%</span><span class="kg">+52 kg</span></div>
+        <div class="carga-row"><span class="w">S3 90%</span><span class="kg">+58 kg</span></div>
+        <div class="carga-row peak"><span class="w">S4 100%</span><span class="kg">+65 kg</span></div>
+        <div class="carga-row deload"><span class="w">S5 ↓</span><span class="kg">+30 kg</span></div>
+      </div>
+    </div>
+    <div class="carga-card">
+      <div class="ex">Dominadas last.</div>
+      <div class="carga-weeks">
+        <div class="carga-row"><span class="w">S1</span><span class="kg">+35 kg</span></div>
+        <div class="carga-row"><span class="w">S2</span><span class="kg">+42 kg</span></div>
+        <div class="carga-row"><span class="w">S3</span><span class="kg">+47 kg</span></div>
+        <div class="carga-row peak"><span class="w">S4</span><span class="kg">+50 kg</span></div>
+        <div class="carga-row deload"><span class="w">S5 ↓</span><span class="kg">+20 kg</span></div>
+      </div>
+    </div>
+    <div class="carga-card">
+      <div class="ex">Muscle Up last.</div>
+      <div class="carga-weeks">
+        <div class="carga-row"><span class="w">S1</span><span class="kg">+7 kg</span></div>
+        <div class="carga-row"><span class="w">S2</span><span class="kg">+8 kg</span></div>
+        <div class="carga-row"><span class="w">S3</span><span class="kg">+9 kg</span></div>
+        <div class="carga-row peak"><span class="w">S4</span><span class="kg">+10 kg</span></div>
+        <div class="carga-row deload"><span class="w">S5 ↓</span><span class="kg">PC</span></div>
+      </div>
+    </div>
+    <div class="carga-card">
+      <div class="ex">Hip Thrust</div>
+      <div class="carga-weeks">
+        <div class="carga-row"><span class="w">S1</span><span class="kg">110 kg</span></div>
+        <div class="carga-row"><span class="w">S2</span><span class="kg">120 kg</span></div>
+        <div class="carga-row"><span class="w">S3</span><span class="kg">130 kg</span></div>
+        <div class="carga-row peak"><span class="w">S4</span><span class="kg">140 kg</span></div>
+        <div class="carga-row deload"><span class="w">S5 ↓</span><span class="kg">90 kg</span></div>
+      </div>
+    </div>
+    <div class="carga-card">
+      <div class="ex">RDL</div>
+      <div class="carga-weeks">
+        <div class="carga-row"><span class="w">S1</span><span class="kg">90 kg</span></div>
+        <div class="carga-row"><span class="w">S2</span><span class="kg">100 kg</span></div>
+        <div class="carga-row"><span class="w">S3</span><span class="kg">105 kg</span></div>
+        <div class="carga-row peak"><span class="w">S4</span><span class="kg">110 kg</span></div>
+        <div class="carga-row deload"><span class="w">S5 ↓</span><span class="kg">75 kg</span></div>
+      </div>
+    </div>
+    <div class="carga-card">
+      <div class="ex">Press inclinado</div>
+      <div class="carga-weeks">
+        <div class="carga-row"><span class="w">S1</span><span class="kg">70 kg</span></div>
+        <div class="carga-row"><span class="w">S2</span><span class="kg">75 kg</span></div>
+        <div class="carga-row"><span class="w">S3</span><span class="kg">78 kg</span></div>
+        <div class="carga-row peak"><span class="w">S4</span><span class="kg">80 kg</span></div>
+        <div class="carga-row deload"><span class="w">S5 ↓</span><span class="kg">60 kg</span></div>
+      </div>
+    </div>
+    <div class="carga-card">
+      <div class="ex">Remo Pendlay</div>
+      <div class="carga-weeks">
+        <div class="carga-row"><span class="w">S1</span><span class="kg">80 kg</span></div>
+        <div class="carga-row"><span class="w">S2</span><span class="kg">85 kg</span></div>
+        <div class="carga-row"><span class="w">S3</span><span class="kg">88 kg</span></div>
+        <div class="carga-row peak"><span class="w">S4</span><span class="kg">90 kg</span></div>
+        <div class="carga-row deload"><span class="w">S5 ↓</span><span class="kg">65 kg</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: REGLAS -->
+<div class="page" id="page-reglas">
+  <h1>REGLAS</h1>
+  <p class="subtitle">Estructura del ciclo y recordatorios</p>
+
+  <div class="section-label">Ciclo de sesiones</div>
+  <div class="rules">
+    <div class="rule-item"><span class="rule-dot">▸</span>5 sesiones en orden, sin días fijos. Si no pudiste ir, continuás donde quedaste.</div>
+    <div class="rule-item"><span class="rule-dot">▸</span>No más de 3 sesiones seguidas sin descanso.</div>
+    <div class="rule-item"><span class="rule-dot">▸</span>Dejar 48 hs entre Sesión 1 (Push) y Sesión 4 (Anillas) — ambas cargan hombros y tríceps.</div>
+    <div class="rule-item"><span class="rule-dot">▸</span>1-2 días de descanso al terminar las 5 sesiones antes de reiniciar.</div>
+  </div>
+
+  <div class="section-label">Progresión lastres</div>
+  <div class="rules">
+    <div class="rule-item"><span class="rule-dot" style="color:#4ade80;">▸</span>S1 = 70% del PR · Técnica sólida, reps limpias.</div>
+    <div class="rule-item"><span class="rule-dot" style="color:#facc15;">▸</span>S2 = 80% · Subir carga, bajar 1-2 reps si es necesario.</div>
+    <div class="rule-item"><span class="rule-dot" style="color:#fb923c;">▸</span>S3 = 90% · Alta intensidad, concentración máxima.</div>
+    <div class="rule-item"><span class="rule-dot" style="color:var(--accent);">▸</span>S4 = 100% · Semana pico — máximo esfuerzo.</div>
+    <div class="rule-item"><span class="rule-dot" style="color:var(--muted);">▸</span>S5 = 50-60% · Descarga obligatoria — recuperación activa.</div>
+    <div class="rule-item"><span class="rule-dot">▸</span>Si en S4 completás todas las series con buena técnica → el próximo ciclo sube el PR.</div>
+  </div>
+
+  <div class="section-label">⚠️ Rodilla — Condromalacia</div>
+  <div class="note red">
+    Nunca entrenes con dolor agudo. Extensión de cuádriceps solo 0°–60°. Sin sentadilla completa. Priorizar glúteo medio y cadena posterior. Si hay inflamación post-entreno: hielo 15 min y evaluar saltear piernas.
+  </div>
+
+  <div class="section-label">Nutrición básica</div>
+  <div class="rules">
+    <div class="rule-item"><span class="rule-dot">▸</span>Déficit -300 a -400 kcal de tu TDEE.</div>
+    <div class="rule-item"><span class="rule-dot">▸</span>Proteína: 2.0–2.4 g/kg → 150-180 g/día.</div>
+    <div class="rule-item"><span class="rule-dot">▸</span>Carbos concentrados pre y post entreno.</div>
+    <div class="rule-item"><span class="rule-dot">▸</span>Hidratación: mínimo 3L en días de entreno.</div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <div class="nav-btn active" onclick="showPage('rutina', this)">
+    <div class="nav-icon">🏋️</div>
+    <div class="nav-lbl">RUTINA</div>
+  </div>
+  <div class="nav-btn" onclick="showPage('cargas', this)">
+    <div class="nav-icon">📊</div>
+    <div class="nav-lbl">CARGAS</div>
+  </div>
+  <div class="nav-btn" onclick="showPage('reglas', this)">
+    <div class="nav-icon">📋</div>
+    <div class="nav-lbl">REGLAS</div>
+  </div>
+</nav>
+
+<script>
+  function showSession(num, el) {
+    document.querySelectorAll('.session').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('s' + num).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function showPage(name, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>
